@@ -1,0 +1,55 @@
+{
+  "name": "vue3-color-picker",
+  "version": "1.0.0",
+  "author": "xufangyi",
+  "private": false,
+  "description": "Vue3.0 颜色选择器",
+  "keywords": [
+    "vue",
+    "vue3",
+    "color",
+    "vue3-color",
+    "vue3-color-picker",
+    "picker",
+    "color-picker"
+  ],
+  "main": "dist/vue3-color-picker.js",
+  "module": "dist/vue3-color-picker.es.js",
+  "types": "./index.d.ts",
+  "files": [
+    "package.json",
+    "README.md",
+    ".gitignore",
+    "LICENSE",
+    "dist/vue3-color-picker.es.js",
+    "dist/vue3-color-picker.es.min.js",
+    "dist/vue3-color-picker.js",
+    "dist/vue3-color-picker.min.js",
+    "src",
+    "index.d.ts"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xfy520/vue3-color-picker.git"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@vue/compiler-sfc": "3.0.0",
+    "rollup": "^2.57.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-clear": "^2.0.7",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-postcss": "3.1.8",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-uglify": "^6.0.4",
+    "rollup-plugin-vue": "^6.0.0",
+    "vue": "3.0.0"
+  }
+}

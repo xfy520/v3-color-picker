@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+
+  </style>
+  <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.js"></script>
+  <script src="../dist/vue3-color-picker.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <vue3-color-picker />
+  </div>
+  <script>
+
+    const vue3Composition = {
+      name: "vue3ColorPicker",
+      setup() {
+        return {}
+      }
+    };
+    const app = Vue.createApp(vue3Composition);
+    app.component("Vue3ColorPicker", Vue3ColorPicker.Vue3ColorPicker);
+    app.mount("#app");
+  </script>
+</body>
+
+</html>
