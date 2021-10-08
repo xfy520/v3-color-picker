@@ -7,7 +7,10 @@
         :class="`color-picker-${theme}`"
         :style="{ zIndex, top: `${top}px`, left: `${left}px` }"
       >
-        <ColorPanel />
+        <ColorPanel v-model:value="color" :height="height" :width="width" />
+        <div class="color-tool">
+          <Straw />
+        </div>
       </div>
     </transition>
   </Teleport>
@@ -19,17 +22,20 @@ import {
   defineComponent,
 } from "vue";
 
-import ColorPanel from './ColorPanel.vue'
+import ColorPanel from "./ColorPanel.vue";
+import Straw from "./Straw.vue";
+import { StrToHex } from "./utils";
 
 export default defineComponent({
   name: "Vue3ColorPicker",
   components: {
-    ColorPanel
+    ColorPanel,
+    Straw
   },
   props: {
     value: {
       type: String,
-      default: "#ffffff"
+      default: "rgb(255,255,255)"
     },
     open: {
       type: Boolean,
@@ -46,10 +52,22 @@ export default defineComponent({
     theme: {
       type: String,
       default: "dark"
-    }
+    },
+    height: {
+      type: Number,
+      default: 150,
+    },
+    width: {
+      type: Number,
+      default: 210,
+    },
   },
   emits: ["update:value", "update:open"],
-  setup(props) {
+  setup(props, { emit }) {
+    const color = computed({
+      get: () => StrToHex(props.value),
+      set: (val) => emit('update:value', val)
+    });
     const left = computed(() => {
       return props.event.clientX;
     });
@@ -58,7 +76,8 @@ export default defineComponent({
     });
     return {
       left,
-      top
+      top,
+      color
     };
   },
 });
@@ -69,6 +88,12 @@ export default defineComponent({
   position: fixed;
   border-radius: 0.3rem;
   box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.16);
+}
+
+.color-tool {
+  height: 3.9rem;
+  background-color: red;
+  line-height: 3.9rem;
 }
 
 .color-picker-dark {

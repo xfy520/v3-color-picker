@@ -6,57 +6,49 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
-import { createLinearGradient } from './utils'
+import { computed, defineComponent, onMounted, ref } from "vue";
+import { createLinearGradient, RgbToHsv } from "./utils";
 
 export default defineComponent({
   name: "ColorPanel",
   props: {
     value: {
       type: String,
-      default: '#fff',
+      default: "rgb(255,255,255)",
     },
-    hsv: {
-      type: Object,
-      default: {
-        h: 0,
-        s: 0,
-        v: 0
-      },
-    },
-    size: {
+    height: {
       type: Number,
-      default: 160,
+      default: 150,
+    },
+    width: {
+      type: Number,
+      default: 210,
     },
   },
   emits: ['update:value'],
-  setup(props) {
+  setup(props, { emit }) {
     const canvasRef = ref(null);
     const colorPanelRef = ref(null);
 
-    const left = ref(`${props.hsv.s * props.size - 5}px`);
-    const top = ref(`${(1 - props.hsv.v) * props.size - 5}px`);
+    const hsv = computed(() => RgbToHsv(props.value));
+
+    const left = ref(`${(hsv.value.s / 100) * props.width - 5}px`);
+    const top = ref(`${(1 - (hsv.value.v / 100)) * props.height - 5}px`);
 
     function onMousedown(event) {
       const { top: Top, left: Left, } = colorPanelRef.value.getBoundingClientRect();
       const ctx = canvasRef.value.getContext("2d");
 
-      const mousemove = () => {
+      const mousemove = (event) => {
         let x = event.clientX - Left;
         let y = event.clientY - Top;
-        left.value = `${(x < 0 ? 0 : x > props.size ? props.size : x) - 5}px`;
-        top.value = `${(y < 0 ? 0 : y > props.size ? props.size : y) - 5}px`;
-
-        const canvasData = ctx.getImageData(Math.min(x, props.size - 1), Math.min(y, props.size - 1), 1, 1)
-        const [r, g, b, a] = canvasData.data;
-        console.log({
-          r,
-          g,
-          b,
-          a
-        })
+        left.value = `${(x < 0 ? 0 : x > props.width ? props.width : x) - 5}px`;
+        top.value = `${(y < 0 ? 0 : y > props.height ? props.height : y) - 5}px`;
+        const canvasData = ctx.getImageData(Math.min(x, props.width - 1), Math.min(y, props.height - 1), 1, 1)
+        const [r, g, b] = canvasData.data;
+        emit('update:value', `rgb(${r},${g},${b})`);
       }
-      mousemove();
+      mousemove(event);
       const mouseup = () => {
         document.removeEventListener("mousemove", mousemove);
         document.removeEventListener("mouseup", mouseup);
@@ -68,13 +60,13 @@ export default defineComponent({
 
     onMounted(() => {
       const ctx = canvasRef.value.getContext("2d");
-      canvasRef.value.width = props.size;
-      canvasRef.value.height = props.size;
+      canvasRef.value.width = props.width;
+      canvasRef.value.height = props.height;
       ctx.fillStyle = props.value;
-      ctx.fillRect(0, 0, props.size, props.size);
+      ctx.fillRect(0, 0, props.width, props.height);
 
-      createLinearGradient(ctx, props.size, 0, "#fff", "#fff0");
-      createLinearGradient(ctx, 0, props.size, "#0000", "#000");
+      createLinearGradient(ctx, 'h', props.width, props.height, "#fff", "#fff0");
+      createLinearGradient(ctx, 'v', props.width, props.height, "#0000", "#000");
     });
 
     return {
