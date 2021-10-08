@@ -5,9 +5,13 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Vue3 颜色选择器例子</title>
   <style>
-
+    .demo {
+      width: 10rem;
+      height: 3rem;
+      cursor: pointer;
+    }
   </style>
   <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.js"></script>
   <script src="../dist/vue3-color-picker.js"></script>
@@ -15,18 +19,35 @@
 
 <body>
   <div id="app">
-    <vue3-color-picker />
+    <div class="demo" :style="{background: color}" @click="click"></div>
+    <vue3-color-picker v-model:open="isOpen" v-model:value="color" :event="event"></vue3-color-picker>
   </div>
   <script>
 
     const vue3Composition = {
-      name: "vue3ColorPicker",
+      name: "vue3ColorPickerDemo",
       setup() {
-        return {}
+        const isOpen = Vue.ref(false);
+        const color = Vue.ref("red");
+        const event = Vue.ref({})
+        function click(e) {
+          isOpen.value = false;
+          Vue.nextTick(() => {
+            event.value = e;
+            isOpen.value = true;
+          })
+          e.preventDefault();
+        }
+        return {
+          isOpen,
+          event,
+          color,
+          click
+        }
       }
     };
     const app = Vue.createApp(vue3Composition);
-    app.component("Vue3ColorPicker", Vue3ColorPicker.Vue3ColorPicker);
+    app.component("vue3-color-picker", Vue3ColorPicker.Vue3ColorPicker);
     app.mount("#app");
   </script>
 </body>
