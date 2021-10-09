@@ -7,9 +7,14 @@
         :class="`color-picker-${theme}`"
         :style="{ zIndex, top: `${top}px`, left: `${left}px` }"
       >
-        <ColorPanel v-model:value="color" :height="height" :width="width" />
+        <ColorPanel v-model:value="color" :hue="hue" :height="height" :width="width" />
         <div class="color-tool">
-          <Straw />
+          <ColorStraw />
+          <ColorPreview v-model:value="color" />
+          <div>
+            <ColorHue :width="hueWidth" v-model:hue="hue" v-model:value="color" />
+            <ColorAlpha :width="hueWidth" v-model:value="color" />
+          </div>
         </div>
       </div>
     </transition>
@@ -20,22 +25,34 @@
 import {
   computed,
   defineComponent,
+  ref
 } from "vue";
 
 import ColorPanel from "./ColorPanel.vue";
-import Straw from "./Straw.vue";
-import { StrToHex } from "./utils";
+import ColorStraw from "./ColorStraw.vue";
+import ColorPreview from "./ColorPreview.vue";
+import ColorHue from "./ColorHue.vue";
+import ColorAlpha from "./ColorAlpha.vue";
+import { StrToHex, getRgb } from "./utils";
 
 export default defineComponent({
   name: "Vue3ColorPicker",
   components: {
     ColorPanel,
-    Straw
+    ColorStraw,
+    ColorPreview,
+    ColorHue,
+    ColorAlpha
   },
   props: {
     value: {
-      type: String,
-      default: "rgb(255,255,255)"
+      type: [String, Object],
+      default: {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 1
+      }
     },
     open: {
       type: Boolean,
@@ -59,14 +76,24 @@ export default defineComponent({
     },
     width: {
       type: Number,
-      default: 210,
+      default: 230,
     },
   },
   emits: ["update:value", "update:open"],
   setup(props, { emit }) {
+
+
+
+
+
+
+
+
+
+    const hue = ref(0);
     const color = computed({
-      get: () => StrToHex(props.value),
-      set: (val) => emit('update:value', val)
+      get: () => getRgb(StrToHex(props.value)),
+      set: (val) => emit('update:value', `rgba(${val.r},${val.g},${val.b},${val.a})`)
     });
     const left = computed(() => {
       return props.event.clientX;
@@ -74,10 +101,13 @@ export default defineComponent({
     const top = computed(() => {
       return props.event.clientY;
     });
+    const hueWidth = computed(() => props.width - 90)
     return {
       left,
       top,
-      color
+      color,
+      hueWidth,
+      hue
     };
   },
 });
@@ -86,18 +116,19 @@ export default defineComponent({
 <style>
 .color-picker {
   position: fixed;
-  border-radius: 0.3rem;
+  border-radius: 5px;
   box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.16);
 }
 
 .color-tool {
-  height: 3.9rem;
-  background-color: red;
-  line-height: 3.9rem;
+  height: 50px;
+  display: flex;
+  padding: 0 9px;
+  align-items: center;
 }
 
 .color-picker-dark {
-  background: #1d1d25;
+  background: #2e333a;
 }
 
 .color-picker-light {
