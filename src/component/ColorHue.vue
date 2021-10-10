@@ -1,20 +1,25 @@
 <template>
-  <div class="color-hue" ref="colorHueRef" @mousedown.prevent.stop="onMousedown">
-    <canvas ref="canvasRef" />
+  <div
+    ref="hueRef"
+    :style="{ width: `${width}px`, height: `${height}px`, padding: `0 ${height / 2}px` }"
+    class="color-hue"
+  >
+    <div ref="barRef" :style="{ height: `${height}px` }" @mousedown.prevent.stop="onMousedown"></div>
     <div
+      ref="thumbRef"
       :style="{
         width: `${height}px`,
         height: `${height}px`,
-        left: `${left < 0 ? 0 : (left + height) > width ? (width - height) : left}px`,
+        top: `${top}px`,
+        left: `${left}px`,
       }"
-      class="slider"
+      @mousedown.prevent.stop="onMousedown"
     ></div>
   </div>
 </template>
 
 <script>
-import { defineComponent, computed, ref, onMounted, watch } from "vue";
-import { RgbToHsv } from "./utils";
+import { defineComponent, watch, ref, onMounted } from "vue";
 
 const height = 12;
 
@@ -23,38 +28,32 @@ export default defineComponent({
   props: {
     value: {
       type: Object,
-      default: {
-        r: 255,
-        g: 255,
-        b: 255
-      }
+      required: true
     },
     width: {
       type: Number,
-      default: 100
+      required: true
     }
   },
-  emits: ["update:value", "update:hue"],
-  setup(props, { emit }) {
-    const colorHueRef = ref(null);
-    const canvasRef = ref(null);
-
-    const left = computed(() => (((1 - RgbToHsv(props.value).h / 360)) * props.width - 2));
+  setup(props) {
+    const hueRef = ref(null);
+    const barRef = ref(null);
+    const thumbRef = ref(null);
+    const top = ref(0);
+    const left = ref(0);
 
     function onMousedown(event) {
-      const Left = colorHueRef.value.getBoundingClientRect().left;
-      const ctx = canvasRef.value.getContext("2d");
-
+      const rect = hueRef.value.getBoundingClientRect();
       const mousemove = (event) => {
-        let x = event.clientX - Left;
-        const canvasData = ctx.getImageData(Math.min(x < 0 ? 0 : x, props.width - 1), 1, 1, 1);
-        const [r, g, b] = canvasData.data;
-        emit("update:value", {
-          r, g, b
-        });
-        emit("update:hue", RgbToHsv({
-          r, g, b
-        }).h)
+        let _left = event.clientX - rect.left
+        _left = Math.min(_left, rect.width - thumbRef.value.offsetWidth / 2)
+        _left = Math.max(thumbRef.value.offsetWidth / 2, _left);
+        const h = Math.round(
+          ((_left - thumbRef.value.offsetWidth / 2) /
+            (rect.width - thumbRef.value.offsetWidth)) *
+          360
+        );
+        props.value.set("h", h);
       }
 
       mousemove(event);
@@ -68,28 +67,30 @@ export default defineComponent({
       globalThis.document.addEventListener("mouseup", mouseup);
     }
 
-    onMounted(() => {
-      const ctx = canvasRef.value.getContext("2d");
-      canvasRef.value.height = height;
-      canvasRef.value.width = props.width;
-      const grd = ctx.createLinearGradient(0, 0, props.width, 0);
-      grd.addColorStop(0, '#F00');
-      grd.addColorStop(0.17 * 5, '#FF0');
-      grd.addColorStop(0.17 * 4, '#0F0');
-      grd.addColorStop(0.17 * 3, '#0FF');
-      grd.addColorStop(0.17 * 2, '#00F');
-      grd.addColorStop(0.17 * 1, '#F0F');
-      grd.addColorStop(1, '#F00');
-      ctx.fillStyle = grd;
-      ctx.fillRect(0, 0, props.width, height);
-    })
+    function update() {
+      const h = props.value.get("h");
+      if (!hueRef.value) {
+        left.value = 0;
+      }
+      // top.value = Math.round((h * (hueRef.value.offsetHeight - thumb.thumbRef.offsetHeight / 2)) / 360);
+      left.value = Math.round((h * (hueRef.value.offsetWidth - thumbRef.value.offsetWidth / 2)) / 360);
+    }
+
+    watch(
+      () => props.value.get("h"),
+      () => update()
+    )
+
+    onMounted(() => update());
 
     return {
-      colorHueRef,
-      canvasRef,
-      height,
+      hueRef,
+      barRef,
+      thumbRef,
+      onMousedown,
       left,
-      onMousedown
+      top,
+      height
     }
   },
 })
@@ -97,18 +98,31 @@ export default defineComponent({
 
 <style>
 .color-hue {
-  height: 16px;
-  display: flex;
-  align-items: center;
   position: relative;
+  margin-bottom: 3px;
+  box-sizing: border-box;
+  background-color: red;
 }
 
-.color-hue .slider {
+.color-hue > div:first-child {
+  position: relative;
+  background: linear-gradient(
+    to right,
+    #f00 0%,
+    #ff0 17%,
+    #0f0 33%,
+    #0ff 50%,
+    #00f 67%,
+    #f0f 83%,
+    #f00 100%
+  );
+  width: 100%;
+}
+
+.color-hue > div:last-child {
   position: absolute;
-  top: 0.2px;
   border-radius: 50%;
   background-color: #fff;
-  border: 1px solid #fff;
   box-shadow: 0 0 1px 1px rgb(255, 255, 255) inset, 0 1px 0 rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }

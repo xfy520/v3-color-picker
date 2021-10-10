@@ -4,7 +4,10 @@
     @mouseenter="onMouseenter"
     @mouseleave="onMouseleave"
     @mouseup="onMouseup"
-    :style="{ backgroundColor: `rgb(${value.r},${value.g},${value.b})`, border: `1px solid rgb(${value.r},${value.g},${value.b})` }"
+    :style="{
+      backgroundColor: `rgba(${value.rgba.r},${value.rgba.g},${value.rgba.b},${value.rgba.a},)`,
+      border: `1px solid rgba(${value.rgba.r},${value.rgba.g},${value.rgba.b},${value.rgba.a})`
+    }"
   >
     <svg width="25" height="25" v-show="copy" viewBox="0 0 1024 1024">
       <path
@@ -25,11 +28,7 @@ export default defineComponent({
   props: {
     value: {
       type: Object,
-      default: {
-        r: 255,
-        g: 255,
-        b: 255
-      }
+      required: true
     }
   },
   setup() {

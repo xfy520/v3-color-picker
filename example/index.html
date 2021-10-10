@@ -20,7 +20,6 @@
 <body>
   <div id="app">
     {{color}}
-
     <div class="demo" :style="{background: color}" @click="click"></div>
     <vue3-color-picker v-model:open="isOpen" v-model:value="color" :event="event"></vue3-color-picker>
   </div>
@@ -30,7 +29,7 @@
       name: "vue3ColorPickerDemo",
       setup() {
         const isOpen = Vue.ref(false);
-        const color = Vue.ref("#FFB243");
+        const color = Vue.ref("rgba(79, 54, 19,0.5)");
         const event = Vue.ref({})
         function click(e) {
           isOpen.value = false;
@@ -40,6 +39,9 @@
           })
           e.preventDefault();
         }
+        // setTimeout(() => {
+        //   color.value = "rgb(255,0,0)";
+        // }, 3000);
         return {
           isOpen,
           event,

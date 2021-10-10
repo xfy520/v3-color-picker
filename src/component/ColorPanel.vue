@@ -7,7 +7,7 @@
 
 <script>
 import { computed, defineComponent, onMounted, ref } from "vue";
-import { createLinearGradient, RgbToHsv } from "./utils";
+import { createLinearGradient, RgbToHsv } from "../script/utils";
 
 export default defineComponent({
   name: "ColorPanel",
@@ -118,7 +118,7 @@ export default defineComponent({
     class="color-panel"
     ref="colorPanelRef"
     :style="{
-      backgroundColor: `rgb(${value.r},${value.g},${value.b})`,
+      backgroundColor: background,
       width: `${width}px`,
       height: `${height}px`
     }"
@@ -126,25 +126,21 @@ export default defineComponent({
   >
     <div class="color-panel-white"></div>
     <div class="color-panel-black"></div>
-    <div :style="{ left: `${left}px`, top: `${top}px` }" class="slider" />
+    <div :style="{ left: `${left}px`, top: `${top}px` }" class="slider">
+      <div></div>
+    </div>
   </div>
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref } from "vue";
-import { HsvToRgb, RgbToHsv } from "./utils";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
 
 export default defineComponent({
   name: "ColorPanel",
   props: {
     value: {
       type: Object,
-      default: {
-        r: 255,
-        g: 255,
-        b: 255,
-        a: 1
-      }
+      required: true
     },
     height: {
       type: Number,
@@ -154,35 +150,39 @@ export default defineComponent({
       type: Number,
       default: 210,
     },
-    hue: {
-      type: Number
-    }
   },
   emits: ['update:value'],
-  setup(props, { emit }) {
+  setup(props) {
     const colorPanelRef = ref(null);
-    const hsv = computed(() => RgbToHsv(props.value));
+    const left = ref(0);
+    const top = ref(0);
 
-    const left = ref((hsv.value.s / 100) * props.width - 5);
-    const top = ref((1 - (hsv.value.v / 100)) * props.height - 5);
+    const background = computed(() => `hsl(${props.value.get('h')}, 100%, 50%)`);
+
+    function update() {
+      const s = props.value.get("s");
+      const v = props.value.get("v");
+      const { clientWidth, clientHeight } = colorPanelRef.value;
+      left.value = (s * clientWidth) / 100;
+      top.value = ((100 - v) * clientHeight) / 100;
+    }
 
     function onMousedown(event) {
-      const rect = colorPanelRef.value.getBoundingClientRect();
+      let rect = colorPanelRef.value.getBoundingClientRect();
 
       const mousemove = (event) => {
         let _left = event.clientX - rect.left;
         let _top = event.clientY - rect.top;
         _left = Math.max(0, _left);
         _left = Math.min(_left, rect.width);
+
         _top = Math.max(0, _top);
         _top = Math.min(_top, rect.height);
-        left.value = _left - 5;
-        top.value = _top - 5;
-        console.log({
-          s: (_left / rect.width) * 100,
-          v: 100 - (_top / rect.height) * 100,
-        });
-        console.log(HsvToRgb(props.hue, (_left / rect.width) * 100, 100 - (_top / rect.height) * 100))
+
+        left.value = _left;
+        top.value = top;
+        props.value.set("s", (_left / rect.width) * 100);
+        props.value.set("v", 100 - (_top / rect.height) * 100);
       }
       mousemove(event);
       const mouseup = () => {
@@ -193,11 +193,19 @@ export default defineComponent({
       globalThis.document.addEventListener("mouseup", mouseup);
     }
 
+    watch(
+      [() => props.value.get("h"), () => props.value.get("v")],
+      () => update()
+    )
+
+    onMounted(() => update())
+
     return {
-      left,
-      top,
+      background,
+      onMousedown,
       colorPanelRef,
-      onMousedown
+      left,
+      top
     }
   }
 })
@@ -228,12 +236,15 @@ export default defineComponent({
 
 .color-panel .slider {
   position: absolute;
+  cursor: pointer;
+}
+
+.color-panel .slider > div {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1px solid #fff;
-  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
+  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px #0000004d, 0 0 1px 2px #0006;
+  transform: translate(-5px, -5px);
 }
 </style>
 
