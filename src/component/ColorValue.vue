@@ -2,19 +2,64 @@
   <div class="color-value">
     <div :style="{ width: `${valueWidth}px` }">
       <div v-if="format === 'hex'">
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="hex" />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onHexInput"
+          v-model="hexValue"
+        />
       </div>
       <div v-else-if="format === 'rgb'">
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="rgba.r" />
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="rgba.g" />
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="rgba.b" />
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="rgba.a" />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onRgbaInput"
+          v-model="rgbaValue.r"
+        />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onRgbaInput"
+          v-model="rgbaValue.g"
+        />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onRgbaInput"
+          v-model="rgbaValue.b"
+        />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onRgbaInput"
+          v-model="rgbaValue.a"
+        />
       </div>
       <div v-else>
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="hsla.h" />
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="hsla.s" />
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="hsla.l" />
-        <input type="text" :style="{ width: `${inputWidth}px` }" v-model="hsla.a" />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onHslaInput"
+          v-model="hslaValue.h"
+        />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onHslaInput"
+          v-model="hslaValue.s"
+        />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onHslaInput"
+          v-model="hslaValue.l"
+        />
+        <input
+          type="text"
+          :style="{ width: `${inputWidth}px` }"
+          @input="onHslaInput"
+          v-model="hslaValue.a"
+        />
       </div>
       <div v-if="format === 'hex'">
         <span>十六进制</span>
@@ -54,20 +99,26 @@ export default defineComponent({
   setup(props) {
     const format = computed(() => props.value.get("f"));
     const formatIndex = ref(formatList.indexOf(format.value));
-    const valueWidth = computed(() => props.width - 36);
+    const valueWidth = computed(() => props.width - 21);
     const inputWidth = computed(() => (format.value === "hex" ? valueWidth.value - 15 : valueWidth.value / 4) - 15);
 
-    const hex = ref(props.value.hex);
-    const rgba = ref(props.value.rgba);
-    const hsla = ref(props.value.hsla);
+    const hexValue = ref(props.value.hex);
+    const rgbaValue = ref(props.value.rgba);
+    const hslaValue = ref(props.value.hsla);
+    function onClick() {
+      formatIndex.value = (formatIndex.value + 1) % 3;
+      props.value.set("f", formatList[formatIndex.value]);
+    }
 
-    watch(hex, (newVal) => {
-      if (!/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(newVal.replace("#", "").trim())) {
+    function onHexInput() {
+      if (!/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(hexValue.value.replace("#", "").trim())) {
         return;
       }
-      props.value.format(newVal);
-    });
-    watch(() => rgba.value, (n) => {
+      props.value.format(hexValue.value);
+    }
+
+    function onRgbaInput() {
+      const n = rgbaValue.value;
       const isNull = n.r === "" || n.g === "" || n.b === "" || n.a === "";
       const isNumber = !isNaN(n.r) && !isNaN(n.g) && !isNaN(n.b) && !isNaN(n.a);
       if (isNull || !isNumber) {
@@ -82,8 +133,10 @@ export default defineComponent({
       let a = Math.max(parseFloat(n.a), 0);
       a = Math.min(a, 1);
       props.value.format(`rgba(${r},${g},${b},${a})`);
-    }, { deep: true });
-    watch(() => hsla.value, (n) => {
+    }
+
+    function onHslaInput() {
+      const n = hslaValue.value;
       const isNull = n.h === "" || n.s === "" || n.l === "" || n.a === "";
       const isNumber = !isNaN(n.h) && !isNaN(n.s) && !isNaN(n.l) && !isNaN(n.a);
       if (isNull || !isNumber) {
@@ -98,26 +151,30 @@ export default defineComponent({
       let a = Math.max(parseFloat(n.a), 0);
       a = Math.min(a, 1);
       props.value.format(`hsla(${h},${s},${l},${a})`)
-    }, { deep: true })
-
-    function onClick() {
-      formatIndex.value = (formatIndex.value + 1) % 3;
-      props.value.set("f", formatList[formatIndex.value]);
     }
 
     watch(() => props.value.v, () => {
-      hex.value = props.value.hex;
-      rgba.value = props.value.rgba;
-      hsla.value = props.value.hsla;
+      if (format.value === "hex") {
+        hexValue.value = props.value.hex;
+      }
+      if (format.value === "rgb") {
+        rgbaValue.value = props.value.rgba;
+      }
+      if (format.value === "hsl") {
+        hslaValue.value = props.value.hsla;
+      }
     })
 
     return {
       format,
       valueWidth,
       inputWidth,
-      hex,
-      rgba,
-      hsla,
+      hexValue,
+      onHexInput,
+      rgbaValue,
+      onRgbaInput,
+      hslaValue,
+      onHslaInput,
       onClick
     }
   }
@@ -126,7 +183,7 @@ export default defineComponent({
 
 <style>
 .color-value {
-  padding: 3px 0 3px 9px;
+  padding: 3px 0;
   display: flex;
 }
 

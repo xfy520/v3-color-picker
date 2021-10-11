@@ -7,7 +7,7 @@ export default class Color {
   v = "#fff";
   s = false;
 
-  constructor(color) {
+  constructor (color) {
     if (color) {
       this._f = checkIsColor(wordToRgb(color));
       this.format(color);
@@ -106,7 +106,8 @@ export default class Color {
       }
       default: {
         const hex = rgbToHex(hsvToRgb(_h, _s, _v));
-        this.v = _a === 100 ? hex : `${hex}${Math.round(this._a / 100 * 255).toString(16)}`;
+        const alpha = Math.round(this._a / 100 * 255);
+        this.v = _a === 100 ? hex : `${hex}${alpha <= 16 ? "0" : ""}${alpha.toString(16)}`;
         break;
       }
     }
@@ -131,7 +132,8 @@ export default class Color {
   get hex() {
     const { _h, _s, _v, _a } = this;
     const hex = rgbToHex(hsvToRgb(_h, _s, _v));
-    return _a === 100 ? hex : `${hex}${Math.round(this._a / 100 * 255).toString(16)}`;
+    const alpha = Math.round(this._a / 100 * 255);
+    return _a === 100 ? hex : `${hex}${alpha <= 16 ? "0" : ""}${alpha.toString(16)}`;
   }
 }
 

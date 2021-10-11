@@ -7,9 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vue3 颜色选择器例子</title>
   <style>
-    .demo {
-      width: 10rem;
-      height: 3rem;
+    html, body { height: 100%;overflow: auto; }
+    #app, .demo {
+      width: 100%;
+      height: 100%;
       cursor: pointer;
     }
   </style>
@@ -19,9 +20,11 @@
 
 <body>
   <div id="app">
-    {{color}}
-    <div class="demo" :style="{background: color}" @click="click"></div>
-    <vue3-color-picker v-model:open="isOpen" v-model:value="color" :event="event"></vue3-color-picker>
+    <!-- <vue3-color-picker v-model:open="isOpen" v-model:value="color" :event="event"></vue3-color-picker> -->
+    <vue3-color-picker v-model:value="color"></vue3-color-picker>
+    <vue3-color-picker v-model:value="color" size="medium"></vue3-color-picker>
+    <vue3-color-picker v-model:value="color" size="small"></vue3-color-picker>
+    <vue3-color-picker v-model:value="color" size="mini"></vue3-color-picker>
   </div>
   <script>
 
@@ -29,7 +32,7 @@
       name: "vue3ColorPickerDemo",
       setup() {
         const isOpen = Vue.ref(false);
-        const color = Vue.ref("#8FF08F80");
+        const color = Vue.ref("rgb(255,0,0)");
         const event = Vue.ref({})
         function click(e) {
           isOpen.value = false;

@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, watchEffect } from "vue";
+import { defineComponent, ref, watch, watchEffect } from "vue";
 import Color from "../color";
 
 const height = 18;
@@ -23,8 +23,8 @@ const height = 18;
 function parseColors(colors, color) {
   return colors.map((v) => {
     const c = new Color(v);
-    console.log(c.hex, color.hex)
-    c.s = c.hex === color.hex;
+    c.s = c.hex.toUpperCase() === color.hex.toUpperCase();
+    // console.log(c.v)
     return c;
   })
 }
@@ -46,9 +46,7 @@ export default defineComponent({
     function handleSelect(index) {
       props.value.format(props.colors[index]);
     }
-    watchEffect(() => {
-      rgbaColors.value = parseColors(props.colors, props.value)
-    })
+    watch(() => props.value.v, () => rgbaColors.value = parseColors(props.colors, props.value))
     return {
       rgbaColors,
       height,
@@ -60,8 +58,6 @@ export default defineComponent({
 
 <style>
 .color-list {
-  margin: 9px 0;
-  padding: 0 9px;
   display: flex;
   overflow: hidden;
   flex-wrap: wrap;

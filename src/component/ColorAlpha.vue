@@ -7,13 +7,10 @@
       height: `${height}px`,
     }"
   >
-    <div
-      :style="{
-        height: `${height}px`,
-        background,
-      }"
-      @mousedown.prevent.stop="onMousedown"
-    ></div>
+    <div ref="barRef" :style="{
+      height: `${height}px`,
+      background,
+    }"></div>
     <div
       ref="thumbRef"
       :style="{
@@ -22,13 +19,13 @@
         top: `${top}px`,
         left: `${left}px`,
       }"
-      @mousedown.prevent.stop="onMousedown"
     ></div>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import draggable from "../draggable";
 
 const height = 12;
 
@@ -46,6 +43,7 @@ export default defineComponent({
   },
   setup(props) {
     const alphaRef = ref(null);
+    const barRef = ref(null);
     const thumbRef = ref(null);
     const top = ref(0);
     const left = ref(0);
@@ -71,36 +69,37 @@ export default defineComponent({
       () => update()
     )
 
-    onMounted(() => update());
-
     function onMousedown(event) {
       const rect = alphaRef.value.getBoundingClientRect();
-      const mousemove = (event) => {
-        let _left = event.clientX - rect.left
-        _left = Math.max(thumbRef.value.offsetWidth / 2, _left)
-        _left = Math.min(_left, rect.width - thumbRef.value.offsetWidth / 2)
-
-        props.value.set("a",
-          Math.round(
-            ((_left - thumbRef.value.offsetWidth / 2) /
-              (rect.width - thumbRef.value.offsetWidth)) *
-            100
-          )
+      let _left = event.clientX - rect.left
+      _left = Math.max(thumbRef.value.offsetWidth / 2, _left);
+      _left = Math.min(_left, rect.width - thumbRef.value.offsetWidth / 2);
+      props.value.set("a",
+        Math.round(
+          ((_left - thumbRef.value.offsetWidth / 2) /
+            (rect.width - thumbRef.value.offsetWidth)) *
+          100
         )
-      }
-
-      mousemove(event);
-
-      const mouseup = () => {
-        globalThis.document.removeEventListener("mousemove", mousemove);
-        globalThis.document.removeEventListener("mouseup", mouseup);
-      }
-
-      globalThis.document.addEventListener("mousemove", mousemove);
-      globalThis.document.addEventListener("mouseup", mouseup);
+      )
     }
+
+    onMounted(() => {
+      const dragConfig = {
+        drag: (event) => {
+          onMousedown(event);
+        },
+        end: (event) => {
+          onMousedown(event);
+        },
+      }
+      draggable(barRef.value, dragConfig);
+      draggable(thumbRef.value, dragConfig);
+      update();
+    });
+
     return {
       alphaRef,
+      barRef,
       thumbRef,
       height,
       onMousedown,
