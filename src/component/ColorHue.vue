@@ -4,7 +4,7 @@
     :style="{ width: `${width}px`, height: `${height}px`, padding: `0 ${height / 2}px` }"
     class="color-hue"
   >
-    <div ref="barRef" :style="{ height: `${height}px` }" @mousedown.prevent.stop="onMousedown"></div>
+    <div :style="{ height: `${height}px` }" @mousedown.prevent.stop="onMousedown"></div>
     <div
       ref="thumbRef"
       :style="{
@@ -37,7 +37,6 @@ export default defineComponent({
   },
   setup(props) {
     const hueRef = ref(null);
-    const barRef = ref(null);
     const thumbRef = ref(null);
     const top = ref(0);
     const left = ref(0);
@@ -72,7 +71,6 @@ export default defineComponent({
       if (!hueRef.value) {
         left.value = 0;
       }
-      // top.value = Math.round((h * (hueRef.value.offsetHeight - thumb.thumbRef.offsetHeight / 2)) / 360);
       left.value = Math.round((h * (hueRef.value.offsetWidth - thumbRef.value.offsetWidth / 2)) / 360);
     }
 
@@ -85,7 +83,6 @@ export default defineComponent({
 
     return {
       hueRef,
-      barRef,
       thumbRef,
       onMousedown,
       left,

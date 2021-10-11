@@ -2,19 +2,19 @@ export default class Color {
   _h = 0;
   _s = 100;
   _v = 100;
-  _a = 1;
+  _a = 100;
   _f = "hex";
   v = "#fff";
+  s = false;
 
-  constructor (color = "#fff") {
-    this._f = checkIsColor(wordToRgb(color));
-    if (this._f === null) {
-      new Error("错误的颜色参数");
+  constructor(color) {
+    if (color) {
+      this._f = checkIsColor(wordToRgb(color));
+      this.format(color);
     }
-    this.format(color);
   }
 
-  format(color) {
+  format(color, _f) {
     if (!color) {
       this._h = 0
       this._s = 100
@@ -27,48 +27,28 @@ export default class Color {
         this._v = Math.max(0, Math.min(100, v));
         this.update();
       }
-      this._f = checkIsColor(wordToRgb(color));
-      switch (this._f) {
+      switch (checkIsColor(wordToRgb(color))) {
         case "hex":
           this._hex(color, fromHsv);
           break;
         case "rgb":
-        case "rgba":
           this._rgba(color, fromHsv);
           break;
         case "hsl":
-        case "hsla":
           this._hsla(color, fromHsv);
           break;
-        case "hsv":
-        case "hsva":
-          this._hsva(color, fromHsv);
-          break;
         default:
-          new Error("非法颜色值");
-          break;
+          throw Error(`非法颜色值--->${color}`);
       }
-    }
-  }
-
-  _hsva(hsva, fromHsv) {
-    hsva = strToArry(hsva, /hsva|hsv|\(|\)/gm);
-    if (hsva.length === 4) {
-      this._a = Math.floor(parseFloat(hsva[3]));
-    } else if (hsva.length === 3) {
-      this._a = 1;
-    }
-    if (hsva.length >= 3) {
-      fromHsv(hsva[0], hsva[1], hsva[2]);
     }
   }
 
   _hsla(hsla, fromHsv) {
     hsla = strToArry(hsla, /hsla|hsl|\(|\)/gm);
     if (hsla.length === 4) {
-      this._a = Math.floor(parseFloat(hsla[3]));
+      this._a = Math.floor(parseFloat(hsla[3]) * 100);
     } else if (parts.length === 3) {
-      this._a = 1
+      this._a = 100;
     }
     if (hsla.length >= 3) {
       const { h, s, v } = hslToHsv(hsla[0], hsla[1], hsla[2]);
@@ -78,13 +58,11 @@ export default class Color {
 
   _rgba(rgba, fromHsv) {
     rgba = strToArry(rgba, /rgba|rgb|\(|\)/gm);
-    console.log(rgba)
     if (rgba.length === 4) {
-      this._a = Math.floor(parseFloat(rgba[3]));
+      this._a = Math.floor(parseFloat(rgba[3]) * 100);
     } else if (rgba.length === 3) {
-      this._a = 1;
+      this._a = 100;
     }
-    console.log(this._a)
     if (rgba.length >= 3) {
       const { h, s, v } = rgbToHsv(rgba[0], rgba[1], rgba[2]);
       fromHsv(h, s, v);
@@ -92,12 +70,12 @@ export default class Color {
   }
 
   _hex(hex, fromHsv) {
+    hex = hex.replace("#", "").trim();
     let { r, g, b } = hexToRgb(hex);
-    hex = value.replace("#", "").trim();
     if (hex.length === 8) {
-      this._a = Math.floor((hexToDecimal(hex.substring(6)) / 255));
+      this._a = Math.floor(parseInt(hex.substring(6), 16) / 255 * 100);
     } else if (hex.length === 3 || hex.length === 6) {
-      this._a = 1;
+      this._a = 100;
     }
     const { h, s, v } = rgbToHsv(r, g, b);
     fromHsv(h, s, v);
@@ -117,33 +95,28 @@ export default class Color {
     switch (_f) {
       case "rgb": {
         const { r, g, b } = hsvToRgb(_h, _s, _v);
-        this.v = `rgb(${r}, ${g}, ${b})`;
+        this.v = _a === 100 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${_a / 100})`;
         break;
       }
-      case "rgba": {
-        const { r, g, b } = hsvToRgb(_h, _s, _v);
-        this.v = `rgba(${r}, ${g}, ${b}, ${_a})`;
-        break;
-      }
-      case "hsv":
-        this.v = `hsva(${_h}, ${Math.round(_s)}%, ${Math.round(_v)}%)`;
-        break;
-      case "hsva":
-        this.v = `hsva(${_h}, ${Math.round(_s)}%, ${Math.round(_v)}%, ${_a})`;
-        break;
       case "hsl": {
         const hsl = hsvToHsl(_h, _s / 100, _v / 100);
-        this.v = `hsla(${_h}, ${Math.round(hsl[0] * 100)}%, ${Math.round(hsl[1] * 100)}%)`;
+        this.v = _a === 100 ? `hsl(${Math.round(_h)}, ${Math.round(hsl[0] * 100)}%, ${Math.round(hsl[1] * 100)}%)` :
+          `hsla(${Math.round(_h)}, ${Math.round(hsl[0] * 100)}%, ${Math.round(hsl[1] * 100)}%, ${_a / 100})`;
         break;
       }
-      case "hsla": {
-        const hsl = hsvToHsl(_h, _s / 100, _v / 100);
-        this.v = `hsla(${_h}, ${Math.round(hsl[0] * 100)}%, ${Math.round(hsl[1] * 100)}%, ${_a})`;
+      default: {
+        const hex = rgbToHex(hsvToRgb(_h, _s, _v));
+        this.v = _a === 100 ? hex : `${hex}${Math.round(this._a / 100 * 255).toString(16)}`;
         break;
       }
-      default:
-        this.v = rgbToHex(hsvToRgb(_h, _s, _v));
-        break;
+    }
+  }
+
+  get hsla() {
+    const { _h, _s, _v, _a } = this;
+    const hsl = hsvToHsl(_h, _s / 100, _v / 100);
+    return {
+      h: Math.round(_h), s: Math.round(hsl[0] * 100), l: Math.round(hsl[1] * 100), a: _a / 100
     }
   }
 
@@ -151,8 +124,14 @@ export default class Color {
     const { _h, _s, _v, _a } = this;
     const { r, g, b } = hsvToRgb(_h, _s, _v);
     return {
-      r, g, b, a: _a
+      r, g, b, a: _a / 100
     };
+  }
+
+  get hex() {
+    const { _h, _s, _v, _a } = this;
+    const hex = rgbToHex(hsvToRgb(_h, _s, _v));
+    return _a === 100 ? hex : `${hex}${Math.round(this._a / 100 * 255).toString(16)}`;
   }
 }
 
@@ -162,13 +141,6 @@ function strToArry(color, reg) {
     .split(/\s|,/g)
     .filter((v) => v !== "")
     .map((v, i) => (i > 2 ? parseFloat(v) : parseInt(v, 10)))
-}
-
-function hexToDecimal(hex) {
-  if (hex.length === 2) {
-    hex.toString(10);
-  }
-  return hex[1].toString(10);
 }
 
 const hsvToHsl = function (h, s, v) {
@@ -252,13 +224,20 @@ function limit(v, max) {
   return Math.abs(v - (max)) < 0.000001 ? 1 : (v % (max)) / parseFloat(max);
 }
 
-function hexToRgb(hexVal) {
-  const rgx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  const hex = hexVal.replace(rgx, (m, r, g, b) => r + r + g + g + b + b);
-  const rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  const r = parseInt(rgb[1], 16);
-  const g = parseInt(rgb[2], 16);
-  const b = parseInt(rgb[3], 16);
+function hexToRgb(hex) {
+  if (!/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(hex)) {
+    throw Error(`非法颜色值--->${hex}`);
+  }
+  let r, g, b;
+  if (hex.length === 3) {
+    r = parseInt(hex[0] + hex[0], 16);
+    g = parseInt(hex[1] + hex[1], 16);
+    b = parseInt(hex[2] + hex[2], 16);
+  } else if (hex.length === 6 || hex.length === 8) {
+    r = parseInt(hex.substring(0, 2), 16);
+    g = parseInt(hex.substring(2, 4), 16);
+    b = parseInt(hex.substring(4, 6), 16);
+  }
   return {
     r, g, b
   };
@@ -268,26 +247,18 @@ function rgbToHex({ r, g, b }) {
   function hex(x) {
     return ("0" + parseInt(x).toString(16)).slice(-2);
   }
-  return (isNaN(r) || isNaN(g) || isNaN(b)) ? "" : `#${hex(r)},${hex(g)},${hex(b)}`.toUpperCase();
+  return (isNaN(r) || isNaN(g) || isNaN(b)) ? "" : `#${hex(r)}${hex(g)}${hex(b)}`.toUpperCase();
 }
 
 function checkIsColor(color) {
   if (/^#/.test(color)) {
     return "hex";
-  } else if (/^rgb\(/.test(color)) {
+  } else if (/^rgb\(/.test(color) || /^rgba\(/.test(color)) {
     return "rgb";
-  } else if (/^rgba\(/.test(color)) {
-    return "rgba";
-  } else if (/^hsl\(/.test(color)) {
+  } else if (/^hsl\(/.test(color) || /^hsla\(/.test(color)) {
     return "hsl";
-  } else if (/^hsla\(/.test(color)) {
-    return "hsla";
-  } else if (/^hsv\(/.test(color)) {
-    return "hsv";
-  } else if (/^hsva\(/.test(color)) {
-    return "hsva";
   }
-  return null;
+  throw Error(`错误的颜色参数--->${color}`);
 }
 
 function wordToRgb(color) {
