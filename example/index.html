@@ -7,10 +7,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vue3 颜色选择器例子</title>
   <style>
-    html, body { height: 100%;overflow: auto; }
-    #app, .demo {
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
       width: 100%;
       height: 100%;
+    }
+
+    #app,
+    .demo {
+      width: 100%;
+      height: 300px;
+    }
+
+    .demo {
+      margin-top: 10px;
       cursor: pointer;
     }
   </style>
@@ -20,41 +35,52 @@
 
 <body>
   <div id="app">
-    <!-- <vue3-color-picker v-model:open="isOpen" v-model:value="color" :event="event"></vue3-color-picker> -->
-    <vue3-color-picker v-model:value="color"></vue3-color-picker>
-    <vue3-color-picker v-model:value="color" size="medium"></vue3-color-picker>
-    <vue3-color-picker v-model:value="color" size="small"></vue3-color-picker>
-    <vue3-color-picker v-model:value="color" size="mini"></vue3-color-picker>
+    <div style="position: fixed; top: 0; left: 0;">
+      <vue3-color-picker v-model:value="color" btn></vue3-color-picker>
+    </div>
+    <div style="position: fixed; bottom: 0; right: 0;">
+      <vue3-color-picker v-model:value="color" size="medium" theme="light"></vue3-color-picker>
+    </div>
+    <div style="position: fixed; bottom: 0; left: 0;">
+      <vue3-color-picker v-model:value="color" size="small"></vue3-color-picker>
+    </div>
+
+    <div style="position: fixed; top: 0; right: 0;">
+      <vue3-color-picker v-model:value="color" :width="300"></vue3-color-picker>
+    </div>
+    <div class="demo" v-color="colorOptions" :style="{backgroundColor: colorOptions.color}"></div>
+    <div class="demo" @click="onClick" :style="{backgroundColor: colorOptions.color}"></div>
   </div>
   <script>
 
     const vue3Composition = {
       name: "vue3ColorPickerDemo",
       setup() {
-        const isOpen = Vue.ref(false);
         const color = Vue.ref("rgb(255,0,0)");
-        const event = Vue.ref({})
-        function click(e) {
-          isOpen.value = false;
-          Vue.nextTick(() => {
-            event.value = e;
-            isOpen.value = true;
-          })
-          e.preventDefault();
+
+        const colorOptions = Vue.ref({
+          color: "rgb(255,0,0)",
+          btn: true,
+          theme: "light"
+        });
+
+        function onClick(event) {
+          Vue3ColorPicker.colorEvent(event, colorOptions.value);
         }
-        // setTimeout(() => {
-        //   color.value = "rgb(255,0,0)";
-        // }, 3000);
+
+        setTimeout(() => {
+          colorOptions.value.color = "rgb(0,0,255)"
+        }, 3000);
+
         return {
-          isOpen,
-          event,
           color,
-          click
+          colorOptions,
+          onClick
         }
       }
     };
     const app = Vue.createApp(vue3Composition);
-    app.component("vue3-color-picker", Vue3ColorPicker.Vue3ColorPicker);
+    app.use(Vue3ColorPicker.default);
     app.mount("#app");
   </script>
 </body>

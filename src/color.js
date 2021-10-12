@@ -7,7 +7,7 @@ export default class Color {
   v = "#fff";
   s = false;
 
-  constructor (color) {
+  constructor(color) {
     if (color) {
       this._f = checkIsColor(wordToRgb(color));
       this.format(color);

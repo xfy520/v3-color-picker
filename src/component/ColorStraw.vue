@@ -24,6 +24,10 @@ export default defineComponent({
   transition: all 0.3s;
 }
 
+.color-picker-light .color-straw {
+  fill: #555555;
+}
+
 .color-straw:hover,
 .color-straw:active {
   fill: #1593ff;

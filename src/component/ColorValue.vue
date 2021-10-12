@@ -221,4 +221,12 @@ export default defineComponent({
 .color-value > div input:focus {
   outline: none;
 }
+
+.color-picker-light .color-value .icon {
+  fill: #555;
+}
+
+.color-picker-light .color-value > div > div:last-child > span {
+  color: #555;
+}
 </style>

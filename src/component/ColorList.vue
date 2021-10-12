@@ -15,19 +15,10 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch, watchEffect } from "vue";
+import { computed, defineComponent } from "vue";
 import Color from "../color";
 
 const height = 18;
-
-function parseColors(colors, color) {
-  return colors.map((v) => {
-    const c = new Color(v);
-    c.s = c.hex.toUpperCase() === color.hex.toUpperCase();
-    // console.log(c.v)
-    return c;
-  })
-}
 
 export default defineComponent({
   name: "ColorList",
@@ -42,11 +33,16 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const rgbaColors = ref(parseColors(props.colors, props.value));
+    const rgbaColors = computed(() => {
+      return props.colors.map((v) => {
+        const c = new Color(v);
+        c.s = c.hex === props.value.hex;
+        return c;
+      });
+    });
     function handleSelect(index) {
       props.value.format(props.colors[index]);
     }
-    watch(() => props.value.v, () => rgbaColors.value = parseColors(props.colors, props.value))
     return {
       rgbaColors,
       height,
@@ -58,6 +54,8 @@ export default defineComponent({
 
 <style>
 .color-list {
+  margin: 9px 0;
+  padding: 0 9px;
   display: flex;
   overflow: hidden;
   flex-wrap: wrap;

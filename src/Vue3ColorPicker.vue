@@ -1,13 +1,23 @@
 <template>
-  <div class="v3-c-p" :class="size ? `v3-c-p-${size}` : null" @click="onClick">
+  <div ref="colorRef" class="v3-c-p" :class="size ? `v3-c-p-${size}` : null" @click="onClick">
     <div class="c-p-t">
       <span class="c-p-c">
-        <span class="c-p-c-i" :style="{ backgroundColor: color.v }"></span>
+        <span class="c-p-c-i" :style="{ backgroundColor: isClear ? 'transparent' : color }"></span>
       </span>
       <span class="c-p-i">
-        <svg class="icon" viewBox="0 0 1024 1024">
+        <svg v-if="!isClear" class="icon" viewBox="0 0 1024 1024">
           <path
             d="M511.711 671.589l-270.188-270.23c-0.287-0.264-0.573-0.531-0.851-0.809-10.935-10.935-10.935-28.663 0-39.598 10.935-10.935 28.663-10.935 39.598 0 0.278 0.278 0.545 0.564 0.809 0.851l0.021-0.021 230.691 230.69 231.94-231.94c10.935-10.935 28.663-10.935 39.598 0s10.935 28.663 0 39.598l-271.617 271.459z"
+          />
+        </svg>
+        <svg v-else class="icon" viewBox="0 0 1024 1024">
+          <path
+            d="M704.28672 309.20704l28.95872 28.9792L334.6432 736.78848l-28.95872-28.9792z"
+            fill="#999"
+          />
+          <path
+            d="M341.03296 315.5968l398.60224 398.60224-28.95872 28.95872-398.60224-398.60224z"
+            fill="#999"
           />
         </svg>
       </span>
@@ -15,75 +25,45 @@
   </div>
   <Teleport to="body">
     <transition name="color-fade">
-      <div
+      <ColorPicker
         v-if="open"
-        class="color-picker"
-        :class="`color-picker-${theme}`"
-        :style="{ width: `${width}px`, zIndex, top: `${top}px`, left: `${left}px` }"
-      >
-        <ColorPanel v-model:value="color" :height="height" :width="width" />
-        <div class="color-tool">
-          <ColorStraw />
-          <ColorPreview v-model:value="color" />
-          <div>
-            <ColorHue :width="hueWidth" v-model:value="color" />
-            <ColorAlpha :width="hueWidth" v-model:value="color" />
-          </div>
-        </div>
-        <ColorValue v-model:value="color" :width="width" />
-        <ColorList :colors="colors" v-model:value="color" />
-      </div>
+        v-model:value="color"
+        :zIndex="zIndex"
+        :position="position"
+        :theme="theme"
+        :width="width"
+        :height="height"
+        :colors="colors"
+        :btn="btn"
+        @confirm="confirm"
+        @clear="clear"
+      />
     </transition>
   </Teleport>
 </template>
 
 <script>
 import {
-  computed,
+  nextTick,
   defineComponent,
-  reactive,
-  watch,
-  ref
+  ref,
+  watch
 } from "vue";
-
-import ColorPanel from "./component/ColorPanel.vue";
-import ColorStraw from "./component/ColorStraw.vue";
-import ColorPreview from "./component/ColorPreview.vue";
-import ColorHue from "./component/ColorHue.vue";
-import ColorAlpha from "./component/ColorAlpha.vue";
-import ColorValue from "./component/ColorValue.vue";
-import ColorList from "./component/ColorList.vue";
-import Color from "./color";
+import ColorPicker from "./component/ColorPicker.vue";
 
 export default defineComponent({
   name: "Vue3ColorPicker",
   components: {
-    ColorPanel,
-    ColorStraw,
-    ColorPreview,
-    ColorHue,
-    ColorAlpha,
-    ColorValue,
-    ColorList
+    ColorPicker
   },
   props: {
     value: {
-      type: String,
+      type: [String, null],
       default: "#fff"
-    },
-    size: {
-      type: String,
-    },
-    open: {
-      type: Boolean,
-      default: false
     },
     zIndex: {
       type: Number,
       default: 2
-    },
-    event: {
-      type: Object,
     },
     theme: {
       type: String,
@@ -101,45 +81,83 @@ export default defineComponent({
       type: Array,
       default: ["#ff4500", "#ff8c00", "#ffd700", "#90ee9003", "#00ced1", "#1e90ff", "#c71585",
         "#ff4500ad", "#ff7800", "#fad400", "#90f09080", "#00babd", "#1f93ffba", "#c7158575"],
-    }
+    },
+    size: {
+      type: String,
+    },
+    btn: {
+      type: Boolean,
+      default: true
+    },
   },
-  emits: ["update:value", "update:open"],
+  emits: ["update:value", "change"],
   setup(props, { emit }) {
-    const event = ref(props.event || {});
-    const open = ref(props.open);
-    const left = computed(() => {
-      return event.value.clientX || 0;
+    const colorRef = ref(null);
+    const position = ref({
+      x: 0,
+      y: 0
     });
-    const top = computed(() => {
-      return event.value.clientY || 0;
+    const isClear = ref(false);
+    const color = ref(props.value);
+    watch(color, (newVal) => {
+      isClear.value = false;
+      !props.btn && emit("update:value", newVal);
+      emit("change", newVal);
     });
-
-    const color = reactive(new Color(props.value));
-
     watch(() => props.value, (newVal) => {
-      if (newVal && newVal !== color.v) {
-        color.format(newVal);
+      if (newVal !== null || !props.btn) {
+        isClear.value = false;
+        color.value = props.value;
+      }
+      if (newVal === null) {
+        isClear.value = true;
       }
     })
-
-    function onClick(event) {
-      console.log(event)
-      event.value = event;
-      open.value = true;
+    const open = ref(false);
+    function onClick(e) {
+      open.value = false;
+      nextTick(() => {
+        position.value = {
+          x: e.clientX,
+          y: e.clientY
+        };
+        open.value = true;
+      });
     }
-
-    watch(
-      () => color.v,
-      () => { emit("update:value", color.v); }
-    )
-    const hueWidth = computed(() => props.width - 70);
+    function close(event) {
+      if (colorRef.value !== event.target) {
+        open.value = false;
+      }
+    }
+    function confirm() {
+      emit("update:value", color.value);
+      emit("change", color.value);
+      open.value = false;
+    }
+    function clear() {
+      emit("update:value", null);
+      emit("change", null);
+      isClear.value = true;
+      open.value = false;
+    }
+    watch(open, (newVal) => {
+      if (newVal) {
+        globalThis.document.addEventListener("click", close);
+        globalThis.document.addEventListener("contextmenu", close);
+      } else {
+        globalThis.document.removeEventListener("click", close);
+        globalThis.document.removeEventListener("contextmenu", close);
+      }
+    })
     return {
-      left,
-      top,
-      color,
-      hueWidth,
       onClick,
-      open
+      position,
+      open,
+      color,
+      confirm,
+      clear,
+      isClear,
+      colorRef
     };
   },
 });
@@ -151,6 +169,7 @@ export default defineComponent({
   position: relative;
   height: 40px;
   line-height: normal;
+  cursor: pointer;
 }
 
 .v3-c-p-medium {
@@ -160,6 +179,7 @@ export default defineComponent({
 .v3-c-p.v3-c-p-medium .c-p-t {
   height: 35px;
   width: 35px;
+  pointer-events: none;
 }
 
 .v3-c-p.v3-c-p-small {
@@ -169,6 +189,7 @@ export default defineComponent({
 .v3-c-p.v3-c-p-small .c-p-t {
   height: 30px;
   width: 30px;
+  pointer-events: none;
 }
 
 .v3-c-p.v3-c-p-mini {
@@ -178,6 +199,7 @@ export default defineComponent({
 .v3-c-p.v3-c-p-mini .c-p-t {
   height: 26px;
   width: 26px;
+  pointer-events: none;
 }
 
 .v3-c-p .c-p-t {
@@ -191,17 +213,20 @@ export default defineComponent({
   font-size: 0;
   position: relative;
   cursor: pointer;
+  pointer-events: none;
 }
 
 .v3-c-p .c-p-c {
   position: relative;
   display: block;
   box-sizing: border-box;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==);
   border: 1px solid #909399;
   border-radius: 3px;
   width: 100%;
   height: 100%;
   text-align: center;
+  pointer-events: none;
 }
 
 .v3-c-p .c-p-c-i {
@@ -210,6 +235,7 @@ export default defineComponent({
   top: 0;
   right: 0;
   bottom: 0;
+  pointer-events: none;
 }
 
 .v3-c-p .c-p-i {
@@ -220,34 +246,13 @@ export default defineComponent({
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+  pointer-events: none;
 }
 
 .c-p-i .icon {
   fill: #fff;
   width: 22px;
   height: 22px;
-}
-
-.color-picker {
-  position: fixed;
-  border-radius: 5px;
-  box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.16);
-  user-select: none;
-  padding: 9px;
-}
-
-.color-tool {
-  height: 50px;
-  display: flex;
-  align-items: center;
-}
-
-.color-picker-dark {
-  background: #2e333a;
-}
-
-.color-picker-light {
-  background: #f8f8f8;
 }
 
 .color-fade-enter-active,

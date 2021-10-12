@@ -123,7 +123,12 @@ export default defineComponent({
   position: absolute;
   border-radius: 50%;
   background-color: #fff;
-  box-shadow: 0 0 1px 1px rgb(255, 255, 255) inset, 0 1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 1px 1px #fff inset, 0 1px 0 rgba(0, 0, 0, 0.5);
   cursor: pointer;
+}
+
+.color-picker-light .color-hue > div:last-child {
+  background-color: #ddd;
+  box-shadow: 0 0 1px 1px #ddd inset, 0 1px 0 rgba(0, 0, 0, 0.5);
 }
 </style>
