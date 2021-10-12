@@ -6,6 +6,10 @@ Vue3.0 原生颜色选择器，与浏览器自带几乎一样，支持 Vite2.0�
 
 ## [在线文档](https://doc.wssio.com/opensource/v3-color-picker/)
 
+## 安装
+
+### NPM
+
 ```shell
 npm install v3-color-picker
 ```
