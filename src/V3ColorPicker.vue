@@ -87,7 +87,7 @@ export default defineComponent({
     },
     btn: {
       type: Boolean,
-      default: true
+      default: false
     },
   },
   emits: ["update:value", "change"],

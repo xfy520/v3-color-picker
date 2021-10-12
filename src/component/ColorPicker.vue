@@ -95,7 +95,7 @@ export default defineComponent({
     },
     btn: {
       type: Boolean,
-      default: true
+      default: false
     },
     change: {
       type: Function
