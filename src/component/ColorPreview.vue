@@ -64,7 +64,7 @@ export default defineComponent({
 .color-preview {
   width: 32px;
   height: 32px;
-  margin: 0 9px;
+  margin-right: 9px;
   border-radius: 50%;
   box-sizing: border-box;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==);

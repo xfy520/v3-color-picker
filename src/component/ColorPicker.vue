@@ -9,7 +9,7 @@
   >
     <ColorPanel v-model:value="color" :height="height" :width="width" />
     <div class="color-tool">
-      <ColorStraw />
+      <!-- <ColorStraw /> -->
       <ColorPreview v-model:value="color" />
       <div>
         <ColorHue :width="hueWidth" v-model:value="color" />
@@ -41,7 +41,7 @@ import {
 } from "vue";
 
 import ColorPanel from "./ColorPanel.vue";
-import ColorStraw from "./ColorStraw.vue";
+// import ColorStraw from "./ColorStraw.vue";
 import ColorPreview from "./ColorPreview.vue";
 import ColorHue from "./ColorHue.vue";
 import ColorAlpha from "./ColorAlpha.vue";
@@ -56,7 +56,7 @@ export default defineComponent({
   name: "ColorPicker",
   components: {
     ColorPanel,
-    ColorStraw,
+    // ColorStraw,
     ColorPreview,
     ColorHue,
     ColorAlpha,
@@ -113,13 +113,14 @@ export default defineComponent({
     const style = ref({
       left: props.position.x || 0,
       top: props.position.y || 0
-    })
+    });
     const color = reactive(new Color(props.value));
     watch(() => props.value, (newVal) => {
       if (newVal && newVal !== color.v) {
         color.format(newVal);
       }
     });
+    const hueWidth = computed(() => props.width - 40);
     watch(
       () => color.v,
       () => {
@@ -148,7 +149,6 @@ export default defineComponent({
       })
     })
 
-    const hueWidth = computed(() => props.width - 70);
     return {
       colorRef,
       style,

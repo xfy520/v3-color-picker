@@ -30,46 +30,46 @@
     }
   </style>
   <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.js"></script>
-  <script src="../dist/vue3-color-picker.js"></script>
+  <script src="../dist/v3-color-picker.js"></script>
 </head>
 
 <body>
   <div id="app">
-    <div style="position: fixed; top: 0; left: 0;">
-      <vue3-color-picker v-model:value="color" btn></vue3-color-picker>
+    <!-- <div style="position: fixed; top: 0; left: 0;">
+      <v3-color-picker v-model:value="color" btn></v3-color-picker>
     </div>
     <div style="position: fixed; bottom: 0; right: 0;">
-      <vue3-color-picker v-model:value="color" size="medium" theme="light"></vue3-color-picker>
+      <v3-color-picker v-model:value="color" size="medium" theme="light"></v3-color-picker>
     </div>
     <div style="position: fixed; bottom: 0; left: 0;">
-      <vue3-color-picker v-model:value="color" size="small"></vue3-color-picker>
+      <v3-color-picker v-model:value="color" size="small"></v3-color-picker>
     </div>
 
     <div style="position: fixed; top: 0; right: 0;">
-      <vue3-color-picker v-model:value="color" :width="300"></vue3-color-picker>
-    </div>
-    <div class="demo" v-color="colorOptions" :style="{backgroundColor: colorOptions.color}"></div>
-    <div class="demo" @click="onClick" :style="{backgroundColor: colorOptions.color}"></div>
+      <v3-color-picker v-model:value="color" :width="300"></v3-color-picker>
+    </div> -->
+    <div class="demo" v-color="colorOptions" :style="{backgroundColor: colorOptions.value}"></div>
+    <!-- <div class="demo" @click="onClick" :style="{backgroundColor: colorOptions.value}"></div> -->
   </div>
   <script>
 
     const vue3Composition = {
-      name: "vue3ColorPickerDemo",
+      name: "V3ColorPickerDemo",
       setup() {
-        const color = Vue.ref("rgb(255,0,0)");
+        const color = Vue.ref("rgba(255,0,0,0.5)");
 
         const colorOptions = Vue.ref({
-          color: "rgb(255,0,0)",
+          value: "rgba(255,0,0,0.5)",
           btn: true,
           theme: "light"
         });
 
         function onClick(event) {
-          Vue3ColorPicker.colorEvent(event, colorOptions.value);
+          V3ColorPicker.colorEvent(event, colorOptions.value);
         }
 
         setTimeout(() => {
-          colorOptions.value.color = "rgb(0,0,255)"
+          colorOptions.value.value = "rgb(0,0,255，0.5)"
         }, 3000);
 
         return {
@@ -80,7 +80,7 @@
       }
     };
     const app = Vue.createApp(vue3Composition);
-    app.use(Vue3ColorPicker.default);
+    app.use(V3ColorPicker.default);
     app.mount("#app");
   </script>
 </body>

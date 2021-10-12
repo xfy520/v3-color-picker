@@ -1,6 +1,6 @@
 {
   "name": "v3-color-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "xufangyi",
   "private": false,
   "description": "Vue3.0 颜色选择器",
@@ -9,29 +9,30 @@
     "vue3",
     "color",
     "vue3-color",
+    "color-picker",
+    "color picker",
     "vue3-color-picker",
-    "picker",
-    "color-picker"
+    "vue3 color picker"
   ],
-  "main": "dist/vue3-color-picker.js",
-  "module": "dist/vue3-color-picker.es.js",
+  "main": "dist/v3-color-picker.js",
+  "module": "dist/v3-color-picker.es.js",
   "types": "./index.d.ts",
   "files": [
     "package.json",
     "README.md",
     ".gitignore",
     "LICENSE",
-    "dist/vue3-color-picker.es.js",
-    "dist/vue3-color-picker.es.min.js",
-    "dist/vue3-color-picker.js",
-    "dist/vue3-color-picker.min.js",
+    "dist/v3-color-picker.es.js",
+    "dist/v3-color-picker.es.min.js",
+    "dist/v3-color-picker.js",
+    "dist/v3-color-picker.min.js",
     "src",
     "index.d.ts"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/xfy520/vue3-color-picker.git"
+    "url": "https://github.com/xfy520/v3-color-picker.git"
   },
   "scripts": {
     "build": "rollup -c"

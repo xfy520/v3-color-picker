@@ -1,6 +1,6 @@
 import { createVNode, render, watch, createApp } from 'vue';
 
-import Vue3ColorPicker from "./Vue3ColorPicker.vue";
+import V3ColorPicker from "./V3ColorPicker.vue";
 import ColorPicker from "./component/ColorPicker.vue";
 
 function _colorEvent(options, event) {
@@ -31,8 +31,8 @@ function _colorEvent(options, event) {
     document.body.appendChild(container.firstElementChild);
   }
   watch(options, (opts) => {
-    if (opts.color) {
-      vNode.component.props.value = opts.color;
+    if (opts.value) {
+      vNode.component.props.value = opts.value;
     }
   })
   if (!temp.change) {
@@ -66,7 +66,7 @@ const directive = {
 const colorEvent = (event, options) => _colorEvent(options, event);
 
 const install = function (app) {
-  app.component(Vue3ColorPicker.name, Vue3ColorPicker);
+  app.component(V3ColorPicker.name, V3ColorPicker);
   app.directive("color", directive);
   app.config.globalProperties.colorEvent = (event, options) => _colorEvent(options, event);
 }
@@ -77,7 +77,7 @@ export default function (app) {
 }
 
 export {
-  Vue3ColorPicker,
+  V3ColorPicker,
   directive,
   colorEvent
 }

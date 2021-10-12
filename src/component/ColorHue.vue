@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { defineComponent, watch, ref, onMounted } from "vue";
+import { defineComponent, watch, ref, onMounted, nextTick } from "vue";
 import draggable from "../draggable";
 
 const height = 12;
@@ -70,17 +70,19 @@ export default defineComponent({
     )
 
     onMounted(() => {
-      const config = {
-        drag: (event) => {
-          onMousedown(event);
-        },
-        end: (event) => {
-          onMousedown(event);
-        },
-      }
-      draggable(barRef.value, config);
-      draggable(thumbRef.value, config);
-      update();
+      nextTick(() => {
+        const config = {
+          drag: (event) => {
+            onMousedown(event);
+          },
+          end: (event) => {
+            onMousedown(event);
+          },
+        }
+        draggable(barRef.value, config);
+        draggable(thumbRef.value, config);
+        update();
+      })
     });
 
     return {

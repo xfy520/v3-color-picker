@@ -52,7 +52,7 @@ import {
 import ColorPicker from "./component/ColorPicker.vue";
 
 export default defineComponent({
-  name: "Vue3ColorPicker",
+  name: "V3ColorPicker",
   components: {
     ColorPicker
   },

@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import { defineComponent, ref, computed, watch, onMounted, nextTick } from "vue";
 import draggable from "../draggable";
 
 const height = 12;
@@ -60,6 +60,7 @@ export default defineComponent({
       const a = props.value.get("a");
       if (!alphaRef.value) {
         left.value = 0;
+        return 0;
       }
       left.value = Math.round((a * (alphaRef.value.offsetWidth - thumbRef.value.offsetWidth / 2)) / 100);
     }
@@ -84,17 +85,19 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      const dragConfig = {
-        drag: (event) => {
-          onMousedown(event);
-        },
-        end: (event) => {
-          onMousedown(event);
-        },
-      }
-      draggable(barRef.value, dragConfig);
-      draggable(thumbRef.value, dragConfig);
-      update();
+      nextTick(() => {
+        const dragConfig = {
+          drag: (event) => {
+            onMousedown(event);
+          },
+          end: (event) => {
+            onMousedown(event);
+          },
+        }
+        draggable(barRef.value, dragConfig);
+        draggable(thumbRef.value, dragConfig);
+        update();
+      })
     });
 
     return {

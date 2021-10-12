@@ -9,7 +9,7 @@ type colorType = {
 }
 
 declare module 'v3-color-picker' {
-  export const Vue3ColorPicker: import('vue').DefineComponent<colorType & {
+  export const V3ColorPicker: import('vue').DefineComponent<colorType & {
     size: undefined | "medium" | "small" | "mini"
   }>;
 

@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import { computed, defineComponent, nextTick, onMounted, ref, watch } from "vue";
 import draggable from "../draggable";
 
 export default defineComponent({
@@ -75,15 +75,17 @@ export default defineComponent({
     )
 
     onMounted(() => {
-      draggable(colorPanelRef.value, {
-        drag: (event) => {
-          onMousedown(event)
-        },
-        end: (event) => {
-          onMousedown(event)
-        },
+      nextTick(() => {
+        draggable(colorPanelRef.value, {
+          drag: (event) => {
+            onMousedown(event)
+          },
+          end: (event) => {
+            onMousedown(event)
+          },
+        })
+        update();
       })
-      update();
     })
 
     return {
