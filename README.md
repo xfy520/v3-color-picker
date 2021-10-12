@@ -1,6 +1,6 @@
 # v3-color-picker
 
-Vue3.0 原生颜色选择器，与浏览器自带几乎一样，支持 Vite2.0
+Vue3.0 原生颜色选择器，与浏览器自带几乎一样，支持 Vite2.0，[npm地址](https://www.npmjs.com/package/v3-color-picker)
 
 ![演示](./example/v3-color-picker.png)
 
@@ -168,6 +168,10 @@ export default defineComponent({
 
 ## 参数说明
 
+### 方法使用参数
+
+colorEvent(event, options)，`event`：事件对象，`options`：公共参数与方法参数
+
 ### 公共参数
 
 |  属性  |        描述        |            类型            | 是否必填 | 默认值  |
@@ -179,3 +183,15 @@ export default defineComponent({
 | colors |    预选颜色列表    |         `[string]`         | `false`  |  `[]`   |
 |  btn   |  是否显示按钮按钮  |         `boolean`          | `false`  | `false` |
 | zIndex |      菜单层级      |          `number`          | `false`  |   `2`   |
+
+### 组件参数
+
+| 属性  |   描述   |                     类型                     | 是否必填 |   默认值    |
+| :---: | :------: | :------------------------------------------: | :------: | :---------: |
+| size  | 组件大小 | `undefined` \| `medium` \| `small` \| `mini` | `false`  | `undefined` |
+
+### 指令、方法参数
+
+|  属性  |           描述           |    类型    | 是否必填 | 默认值 |
+| :----: | :----------------------: | :--------: | :------: | :----: |
+| change | 颜色值发生改变时触发事件 | `Function` | `false`  | `none` |
