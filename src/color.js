@@ -47,7 +47,7 @@ export default class Color {
     hsla = strToArry(hsla, /hsla|hsl|\(|\)/gm);
     if (hsla.length === 4) {
       this._a = Math.floor(parseFloat(hsla[3]) * 100);
-    } else if (parts.length === 3) {
+    } else if (hsla.length === 3) {
       this._a = 100;
     }
     if (hsla.length >= 3) {
