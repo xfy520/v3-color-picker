@@ -45,7 +45,16 @@ export default defineComponent({
     }
     function onMouseup() {
       copy.value = false;
-      success.value = true;
+      navigator.clipboard.writeText(props.value.v)
+        .then(() => {
+          success.value = true;
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+    function onCopy() {
+
     }
 
     return {
@@ -55,6 +64,7 @@ export default defineComponent({
       success,
       copy,
       background,
+      onCopy,
     }
   }
 })

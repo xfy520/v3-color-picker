@@ -61,16 +61,15 @@
         const colorOptions = Vue.ref({
           value: "rgba(255,0,0,0.5)",
           btn: true,
-          theme: "light"
         });
 
         function onClick(event) {
           V3ColorPicker.colorEvent(event, colorOptions.value);
         }
 
-        setTimeout(() => {
-          colorOptions.value.value = "rgb(0,0,255，0.5)"
-        }, 3000);
+        // setTimeout(() => {
+        //   colorOptions.value.value = "rgb(0,0,255，0.5)"
+        // }, 3000);
 
         return {
           color,

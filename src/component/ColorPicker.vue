@@ -1,15 +1,10 @@
 <template>
-  <div
-    ref="colorRef"
-    class="color-picker"
-    :class="`color-picker-${theme}`"
-    :style="{ width: `${width}px`, zIndex, top: `${style.top}px`, left: `${style.left}px` }"
-    @click.stop
-    @contextmenu.prevent.stop
-  >
+  <div ref="colorRef" class="color-picker" :class="`color-picker-${theme}`"
+    :style="{ width: `${width}px`, zIndex, top: `${style.top}px`, left: `${style.left}px` }" @click.stop
+    @contextmenu.prevent.stop>
     <ColorPanel v-model:value="color" :height="height" :width="width" />
     <div class="color-tool">
-      <!-- <ColorStraw /> -->
+      <ColorStraw v-if="isEyeDropper" @updateColor="updateColorStraw"/>
       <ColorPreview v-model:value="color" />
       <div>
         <ColorHue :width="hueWidth" v-model:value="color" />
@@ -41,12 +36,12 @@ import {
 } from "vue";
 
 import ColorPanel from "./ColorPanel.vue";
-// import ColorStraw from "./ColorStraw.vue";
-import ColorPreview from "./ColorPreview.vue";
+import ColorStraw from "./ColorStraw.vue";
 import ColorHue from "./ColorHue.vue";
 import ColorAlpha from "./ColorAlpha.vue";
-import ColorValue from "./ColorValue.vue";
 import ColorList from "./ColorList.vue";
+import ColorValue from "./ColorValue.vue";
+import ColorPreview from "./ColorPreview.vue";
 import Color from "../color";
 
 const windowWidth = globalThis.document.documentElement.clientWidth;
@@ -56,7 +51,7 @@ export default defineComponent({
   name: "ColorPicker",
   components: {
     ColorPanel,
-    // ColorStraw,
+    ColorStraw,
     ColorPreview,
     ColorHue,
     ColorAlpha,
@@ -109,6 +104,11 @@ export default defineComponent({
   },
   emits: ["update:value", "confirm", "clear"],
   setup(props, { emit }) {
+    const isEyeDropper = ref(false);
+    if (window.EyeDropper) {
+      isEyeDropper.value = true;
+    }
+
     const colorRef = ref(null);
     const style = ref({
       left: props.position.x || 0,
@@ -120,7 +120,7 @@ export default defineComponent({
         color.format(newVal);
       }
     });
-    const hueWidth = computed(() => props.width - 40);
+    const hueWidth = computed(() => props.width - (isEyeDropper.value ? 63 : 40));
     watch(
       () => color.v,
       () => {
@@ -149,13 +149,19 @@ export default defineComponent({
       })
     })
 
+    const updateColorStraw = (c) => {
+      color.format(c, color._f)
+    }
+
     return {
       colorRef,
       style,
       color,
       hueWidth,
+      isEyeDropper,
       clear,
-      confirm
+      confirm,
+      updateColorStraw
     };
   },
 });

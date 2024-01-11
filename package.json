@@ -1,6 +1,6 @@
 {
   "name": "v3-color-picker",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "author": "xufangyi",
   "private": false,
   "description": "Vue3.0 颜色选择器",
@@ -35,7 +35,7 @@
     "url": "https://github.com/xfy520/v3-color-picker.git"
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c -w"
   },
   "dependencies": {},
   "devDependencies": {
